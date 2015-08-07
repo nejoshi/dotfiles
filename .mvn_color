@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# thanks to:  http://blog.blindgaenger.net/colorize_maven_output.html
+# and: http://johannes.jakeapp.com/blog/category/fun-with-linux/200901/maven-colorized
+# Colorize Maven Output
+alias maven="command mvn"
+escape=$(echo | tr '\n' '\033')
+function color_maven() {
+    local BLUE="$escape[1;34m"
+    local RED="$escape[1;31m"
+    local LIGHT_RED="$escape[1;31m"
+    local LIGHT_GRAY="$escape[1;37m"
+    local LIGHT_GREEN="$escape[1;32m"
+    local LIGHT_BLUE="$escape[1;34m"
+    local LIGHT_CYAN="$escape[1;36m"
+    local YELLOW="$escape[1;33m"
+    local WHITE="$escape[1;37m"
+    local NO_COLOUR="$escape[0m"
+    maven $* | sed \
+        -e "s/Tests run: \([^,]*\), Failures: \([^,]*\), Errors: \([^,]*\), Skipped: \([^,]*\)/${LIGHT_GREEN}Tests run: \1$NO_COLOUR, Failures: $RED\2$NO_COLOUR, Errors: $YELLOW\3$NO_COLOUR, Skipped: $LIGHT_BLUE\4$NO_COLOUR/g" \
+        -e "s/\(\[\{0,1\}WARN\(ING\)\{0,1\}\]\{0,1\}.*\)/$YELLOW\1$NO_COLOUR/g" \
+        -e "s/\(\[ERROR\].*\)/$RED\1$NO_COLOUR/g" \
+        -e "s/\(\(BUILD \)\{0,1\}FAILURE.*\)/$RED\1$NO_COLOUR/g" \
+        -e "s/\(\(BUILD \)\{0,1\}SUCCESS.*\)/$LIGHT_GREEN\1$NO_COLOUR/g" \
+        -e "s/\(\[INFO\].*\)/$LIGHT_GRAY\1$NO_COLOUR/g"
+    
+    PSA=${PIPESTATUS[0]}
+
+    msg="Success"
+    echo "PSA $PSA"
+    if [ $PSA -ne 0 ]; then
+        msg="Failed"
+    fi
+    growlnotify --image ~/maven_logo.jpeg -t "Command Status" -m $msg
+    
+    return $PSA
+}
+
+alias mvn=color_maven
