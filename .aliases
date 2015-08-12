@@ -16,6 +16,14 @@ alias h="history"
 alias j="jobs"
 alias p8="pep8 --show-source --show-pep8 --max-line-length=100"
 alias ssh="/bin/bash ~/dotfiles/.color-ssh"
+alias mci="mvn clean install $@"
+alias mcv="mvn clean verify $@"
+alias gri="git rebase -i"
+alias gpr="git pull --rebase"
+function run_ittest() {
+    mvn clean verify -Dit.test=$1
+}
+alias mit="run_ittest $@"
 # Detect which `ls` flavor is in use
 if ls --color > /dev/null 2>&1; then # GNU `ls`
 	colorflag="--color"
